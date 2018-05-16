@@ -13,8 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -55,7 +58,10 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             public void onClick(View v) {
                 body.removeAllViews();//移除当前所有结果
                 city=value.getText().toString();
-                showDialog();
+               /// showDialog();
+                Toast.makeText(MainActivity.this, "正在进行天气查询，请稍后。。。", Toast.LENGTH_SHORT).show();
+                Thread th=new Thread();
+                th.start();
 
             }
         });
@@ -81,8 +87,9 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
 
     }
-
+//下载图片
     private void downImages() {
+
 
     }
 //获取数据
@@ -96,6 +103,19 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             URL url=new URL(weatherUrl);
             httpURLConnection = (HttpURLConnection) url.openConnection();
             //采用get请求
+            httpURLConnection.setRequestMethod("GET");
+            is=httpURLConnection.getInputStream();
+            BufferedReader br=new BufferedReader(new InputStreamReader(is));
+            String inputLine="";
+            String resultData="";
+            //用循环来读取获得的天气数据
+            while ((inputLine=br.readLine())!=null){
+                resultData+=inputLine+"\n";
+
+            }
+//            获得XmlPullParser解析器
+
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -119,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
     };
 //显示结果
     private void showData() {
+
 
     }
 
