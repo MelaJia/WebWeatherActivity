@@ -89,6 +89,22 @@ public class MainActivity extends AppCompatActivity implements Runnable {
     }
 //下载图片
     private void downImages() {
+        //获取天气情况图标
+        int i=0;
+        for (i=0;i<icon.size();i++){
+            try{
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                //释放链接
+                try{
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
 
 
     }
