@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
     @Override
     public void run() {
+        cityName.removeAllElements();
         low.removeAllElements();
         high.removeAllElements();
         icon.removeAllElements();
