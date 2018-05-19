@@ -7,15 +7,20 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.sax.Element;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Xml;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -130,6 +135,29 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
             }
 //            获得XmlPullParser解析器
+            XmlPullParser xmlPullParser= Xml.newPullParser();
+            ByteArrayInputStream tInputStream=null;
+            xmlPullParser.setInput(tInputStream,"UTF-8");
+            //或得到解析的事件类别
+            int evtType=xmlPullParser.getEventType();
+            if (evtType!=XmlPullParser.END_DOCUMENT) //一直循环知道文档结束
+            {
+                switch (evtType){
+                    case XmlPullParser.START_TAG:
+                        String tag=xmlPullParser.getName();
+                        //如果从city开始，这说明有一条新的城市信息
+                        if (tag.equalsIgnoreCase("city")){
+                            cityName.addElement(xmlPullParser.getAttributeValue(null,"cityname"));
+                            //天气情况概述
+                            summary.addElement(""+xmlPullParser.getAttributeValue(null,"stateDetailed"));
+                            //最低温度
+                            low.addElement("最低"+xmlPullParser.getAttributeValue(null,"tem2"));
+                            //天气情况图标网址
+                            icon.addElement("最高"+weatherIcon+xmlPullParser.getAttributeValue(null,"state1")+".gif");
+                        }
+                }
+
+            }
 
 
 
