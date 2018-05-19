@@ -4,17 +4,20 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.sax.Element;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.util.Xml;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -98,12 +101,23 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         int i=0;
         for (i=0;i<icon.size();i++){
             try{
+                URL url=new URL(icon.elementAt(i));
+                httpURLConnection= (HttpURLConnection) url.openConnection();
+                is=httpURLConnection.getInputStream();
+                httpURLConnection.setRequestMethod("GET");
+                bitmap.addElement(BitmapFactory.decodeStream(httpURLConnection.getInputStream()));
+             //   bitmap.addElement(BitmapFactory.decodeStream(is));
+
+
+
 
             }catch (Exception e){
                 e.printStackTrace();
             }finally {
                 //释放链接
                 try{
+                   is.close();
+                   httpURLConnection.disconnect();
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -155,7 +169,13 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                             //天气情况图标网址
                             icon.addElement("最高"+weatherIcon+xmlPullParser.getAttributeValue(null,"state1")+".gif");
                         }
+                        break;
+                    case XmlPullParser.END_TAG:
+                        //标签结束
+                        default:break;
                 }
+                //如果标签没有结束，移到下一个点
+                evtType=xmlPullParser.next();
 
             }
 
@@ -183,6 +203,22 @@ public class MainActivity extends AppCompatActivity implements Runnable {
     };
 //显示结果
     private void showData() {
+        body.removeAllViews();//清除存储原有的查询结果的组件
+        body.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.weight=80;
+        params.height=50;
+        for (int i=0;i<cityName.size();i++){
+            LinearLayout linearLayout=new LinearLayout(this);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            //城市
+            TextView cityView=new TextView(this);
+            cityView.setLayoutParams(params);
+            cityView.setText(cityName.elementAt(i));
+
+
+        }
+
 
 
     }
