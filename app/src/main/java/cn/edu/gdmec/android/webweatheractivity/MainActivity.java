@@ -12,10 +12,12 @@ import android.sax.Element;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Layout;
+import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                 city=value.getText().toString();
                /// showDialog();
                 Toast.makeText(MainActivity.this, "正在进行天气查询，请稍后。。。", Toast.LENGTH_SHORT).show();
-                Thread th=new Thread();
+                Thread th=new Thread(MainActivity.this);
                 th.start();
 
             }
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         //通知Url线程显示结果
         Message message=new Message();
         message.what=1;
+        handler.sendMessage(message);
 
 
     }
@@ -103,8 +106,9 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             try{
                 URL url=new URL(icon.elementAt(i));
                 httpURLConnection= (HttpURLConnection) url.openConnection();
-                is=httpURLConnection.getInputStream();
+
                 httpURLConnection.setRequestMethod("GET");
+                is=httpURLConnection.getInputStream();
                 bitmap.addElement(BitmapFactory.decodeStream(httpURLConnection.getInputStream()));
              //   bitmap.addElement(BitmapFactory.decodeStream(is));
 
@@ -140,25 +144,32 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             //采用get请求
             httpURLConnection.setRequestMethod("GET");
             is=httpURLConnection.getInputStream();
-            BufferedReader br=new BufferedReader(new InputStreamReader(is));
+            InputStreamReader in=new InputStreamReader(httpURLConnection.getInputStream());
+            BufferedReader br=new BufferedReader(in);
+           // BufferedReader br=new BufferedReader(new InputStreamReader(is));
             String inputLine="";
             String resultData="";
             //用循环来读取获得的天气数据
             while ((inputLine=br.readLine())!=null){
                 resultData+=inputLine+"\n";
+                 Log.i("info", resultData);
 
             }
 //            获得XmlPullParser解析器
             XmlPullParser xmlPullParser= Xml.newPullParser();
             ByteArrayInputStream tInputStream=null;
+            tInputStream=new ByteArrayInputStream(resultData.getBytes());
             xmlPullParser.setInput(tInputStream,"UTF-8");
             //或得到解析的事件类别
             int evtType=xmlPullParser.getEventType();
-            if (evtType!=XmlPullParser.END_DOCUMENT) //一直循环知道文档结束
+           //不能使用 if ()     //一直循环知道文档结束
+            while (evtType!=XmlPullParser.END_DOCUMENT)
             {
+               Log.i("evtType", String.valueOf(evtType));
                 switch (evtType){
                     case XmlPullParser.START_TAG:
                         String tag=xmlPullParser.getName();
+                        Log.i("tag1", tag);
                         //如果从city开始，这说明有一条新的城市信息
                         if (tag.equalsIgnoreCase("city")){
                             cityName.addElement(xmlPullParser.getAttributeValue(null,"cityname"));
@@ -166,16 +177,20 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                             summary.addElement(""+xmlPullParser.getAttributeValue(null,"stateDetailed"));
                             //最低温度
                             low.addElement("最低"+xmlPullParser.getAttributeValue(null,"tem2"));
+                            //最高温度
+                            high.addElement("最高"+xmlPullParser.getAttributeValue(null,"tem1"));
                             //天气情况图标网址
-                            icon.addElement("最高"+weatherIcon+xmlPullParser.getAttributeValue(null,"state1")+".gif");
+                            icon.addElement(weatherIcon+xmlPullParser.getAttributeValue(null,"state1")+".gif");
                         }
                         break;
                     case XmlPullParser.END_TAG:
                         //标签结束
-                        default:break;
+                    default:break;
                 }
                 //如果标签没有结束，移到下一个点
                 evtType=xmlPullParser.next();
+                //System.out.print(evtType);
+              //  Log.i("jj", String.valueOf(evtType));
 
             }
 
@@ -189,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             }
         }
     }
-    private Handler handler=new Handler(){
+    private final Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
@@ -209,12 +224,34 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         params.weight=80;
         params.height=50;
         for (int i=0;i<cityName.size();i++){
+            Log.i("cittyname", String.valueOf(cityName));
             LinearLayout linearLayout=new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
             //城市
             TextView cityView=new TextView(this);
             cityView.setLayoutParams(params);
             cityView.setText(cityName.elementAt(i));
+            linearLayout.addView(cityView);
+            //天气描述
+            TextView summaryView=new TextView(this);
+            summaryView.setLayoutParams(params);
+            summaryView.setText(summary.elementAt(i));
+            linearLayout.addView(summaryView);
+            //图标
+            ImageView iconView=new ImageView(this);
+            iconView.setLayoutParams(params);
+            iconView.setImageBitmap(bitmap.elementAt(i));
+            linearLayout.addView(iconView);
+            //最低温度
+            TextView lowView=new TextView(this);
+            lowView.setLayoutParams(params);
+            lowView.setText(low.elementAt(i));
+            linearLayout.addView(lowView);
+            //最高温度
+            TextView highView=new TextView(this);
+            highView.setLayoutParams(params);
+            highView.setText(high.elementAt(i));
+            linearLayout.addView(highView);
 
 
         }
