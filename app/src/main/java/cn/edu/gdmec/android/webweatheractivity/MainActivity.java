@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             highView.setLayoutParams(params);
             highView.setText(high.elementAt(i));
             linearLayout.addView(highView);
-
+//body为布局参数中用于显示天气预报顶层LinearLayout
             body.addView(linearLayout);
 
 
