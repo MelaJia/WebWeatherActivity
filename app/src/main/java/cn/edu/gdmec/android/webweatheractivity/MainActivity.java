@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.LinearLayout.LayoutParams;
+
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                         //如果从city开始，这说明有一条新的城市信息
                         if (tag.equalsIgnoreCase("city")){
                             cityName.addElement(xmlPullParser.getAttributeValue(null,"cityname"));
+                            Log.i("cityName", String.valueOf(cityName));
                             //天气情况概述
                             summary.addElement(""+xmlPullParser.getAttributeValue(null,"stateDetailed"));
                             //最低温度
@@ -218,10 +221,10 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         }
     };
 //显示结果
-    private void showData() {
+    public void showData() {
         body.removeAllViews();//清除存储原有的查询结果的组件
         body.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+       LayoutParams params=new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.weight=80;
         params.height=50;
         for (int i=0;i<cityName.size();i++){
@@ -253,6 +256,8 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             highView.setLayoutParams(params);
             highView.setText(high.elementAt(i));
             linearLayout.addView(highView);
+
+            body.addView(linearLayout);
 
 
         }
